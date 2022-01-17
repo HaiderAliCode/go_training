@@ -14,6 +14,14 @@ type Employee2 struct {
 	company  Company //nested struct
 }
 
+//Anoymous Company field
+type Employee3 struct {
+	name     string
+	salary   int
+	fulltime bool
+	Company  //nested struct
+}
+
 //initializing struct
 type Employee struct {
 	name     string
@@ -25,6 +33,14 @@ type Employee struct {
 type anonstruct struct {
 	string
 	int
+}
+
+//json with metadata
+type Employee6 struct {
+	firstName string `json:"firstName"`
+	lastName  string `json:"lastName"`
+	salary    int    `json: "salary"`
+	fullTime  int    `json: "fullTime"`
 }
 
 func main() {
@@ -75,4 +91,11 @@ func main() {
 		company: Company{"InvoZone"},
 	}
 	fmt.Println(emp6)
+
+	//field promotion with anonymous struct
+	emp7 := Employee3{
+		Company: Company{"Invozone"},
+	}
+	fmt.Println(emp7.Company)
+
 }
