@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -24,15 +25,43 @@ func printchannelvalues(c chan string) {
 }
 
 func funcforchan1(c chan string) {
-	time.Sleep(time.Millisecond * 300)
+	// time.Sleep(time.Millisecond * 300)
 	c <- "hello"
 }
 
 func funcforchan2(c chan string) {
-	time.Sleep(time.Millisecond * 200)
+	// time.Sleep(time.Millisecond * 200)
 	c <- "world"
 }
 
+func funcforwait(c chan string) {
+	time.Sleep(time.Second * 3)
+	c <- ""
+}
+
+func getroutine(wgroup *sync.WaitGroup, elem int) {
+	time.Sleep(time.Millisecond * 200)
+	fmt.Println("service called on instance", elem)
+	wgroup.Done()
+}
+
+func handleworkerpool(sender <-chan int, receiver chan<- int, instance int) {
+	for num := range sender {
+		time.Sleep(time.Millisecond)
+		fmt.Println("function handler", instance)
+		receiver <- num
+	}
+}
+
+var i int
+
+//implmenting mutex here
+func worker(wg *sync.WaitGroup, m *sync.Mutex) {
+	m.Lock()
+	i = i + 1
+	m.Unlock()
+	wg.Done()
+}
 func main() {
 	// nil channel
 	// var c chan int
@@ -114,20 +143,106 @@ func main() {
 	// 	fmt.Println(<-c)
 	// }
 
-	//select statement in golang
-	chan1 := make(chan string)
-	chan2 := make(chan string)
+	// select statement in golang
+	// chan1 := make(chan string)
+	// chan2 := make(chan string)
 
-	go funcforchan1(chan1)
-	go funcforchan1(chan2)
+	// go funcforchan1(chan1)
+	// go funcforchan1(chan2)
 
-	// both statements are blocking channels but when one will hit than it will unblock others
-	select {
-	case res := <-chan1:
-		fmt.Println("chan1 hit", res)
-	case res := <-chan2:
-		fmt.Println("chan2 hit", res)
+	// // both statements are blocking channels but when one will hit than it will unblock others
+	// select {
+	// case res := <-chan1:
+	// 	fmt.Println("chan1 hit", res)
+	// case res := <-chan2:
+	// 	fmt.Println("chan2 hit", res)
+	// }
+
+	//if we remove sleep from goroutines than you may get result from either of goroutine and this approach can be used in load balancing
+
+	//blocking statement to transfer control from main goroutine to other
+	// time.Sleep(time.Millisecond * 10)
+
+	// select {
+	// case res := <-chan1:
+	// 	fmt.Println("chan1 hit", res)
+	// case res := <-chan2:
+	// 	fmt.Println("chan2 hit", res)
+
+	//this is a non blocking statement so main goroutine will never block and exist
+	//but if we put sleep above select than we might get some data
+
+	// default:
+	// 	fmt.Println("nothing received")
+	// }
+
+	// //if we use nil channel we might het trouble in select statement
+	// var c1 chan string
+	// select {
+	// case res := <-c1:
+	// 	fmt.Println(res)
+	// //unless we have default
+	// default:
+	// 	fmt.Println("no response")
+	// }
+
+	//timeout after some time to run default case
+	// chan2 := make(chan string)
+
+	// go funcforwait(chan2)
+
+	// select {
+	// case res := <-chan2:
+	// 	fmt.Println("got result from chan2", res)
+	// case <-time.After(time.Second * 2):
+	// 	fmt.Println("timeout")
+	// }
+
+	//empty select
+	//like for{} select statment also runs forever and its a blocking statement unless one of the cases occured otherwise its a deadlock
+	// select {}
+
+	//waitgroup
+	//when you need to check if all goroutines finished their job
+	// var wg sync.WaitGroup
+	// for i := 0; i < 5; i++ {
+	// 	wg.Add(1)
+	// 	go getroutine(&wg, i)
+	// }
+	// wg.Wait()
+
+	//worker pool
+	// sender := make(chan int, 10)
+	// receiver := make(chan int, 10)
+
+	// for i := 0; i < 3; i++ {
+	// 	go handleworkerpool(sender, receiver, i)
+	// }
+
+	// for i := 0; i < 5; i++ {
+	// 	sender <- i * 2
+	// }
+
+	// fmt.Println("sent 5 items in sender")
+
+	// close(sender)
+
+	// for i := 0; i < 5; i++ {
+	// 	results := <-receiver
+	// 	fmt.Println(results)
+	// }
+
+	/////mutex
+	var wg sync.WaitGroup
+	var m sync.Mutex
+
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go worker(&wg, &m)
 	}
+
+	wg.Wait()
+	fmt.Println("value of i is", i)
 
 	fmt.Println("main() stoppped")
 }
