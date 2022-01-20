@@ -232,17 +232,18 @@ func main() {
 	// 	fmt.Println(results)
 	// }
 
-	/////mutex
-	var wg sync.WaitGroup
-	var m sync.Mutex
+	// /////mutex
+	// var wg sync.WaitGroup
+	// var m sync.Mutex
 
-	for i := 0; i < 1000; i++ {
-		wg.Add(1)
-		go worker(&wg, &m)
-	}
+	// for i := 0; i < 1000; i++ {
+	// 	wg.Add(1)
+	// 	go worker(&wg, &m)
+	// }
 
-	wg.Wait()
-	fmt.Println("value of i is", i)
+	// wg.Wait()
+	// // race condition is when multiple goroutines tries to access open variable and we see unsual results
+	// fmt.Println("value of i is", i)
 
 	fmt.Println("main() stoppped")
 }
