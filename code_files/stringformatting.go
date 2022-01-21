@@ -50,13 +50,15 @@ func main() {
 	//%T is used to get type of the variable
 	// %d converts hexa decimal to base10 format
 	//%b to convert into binary format
-	// %x hexadecimal format
-	// %o octal format
-	//%f decimal format
+	// %x hexadecimal format # adds leading 0 to hex value like 0 and %X for capital letters
+	// %o octal format # adds leading 0 like 011 to octal value 11
+	//%f formatting digits (%w.pf (w for width space and p for precision)) if we want default width we can skip w
 	//%e scientific notation //can be used when a floating point number is too large to display
-	//%g scientific notation with significant fields
+	//%g format floating point number to its significant digit
 	//%s used for string format
 	// %q used for escaped string format
 	// %p pointer address format
+	// if we want to have our custom value in %v of our custom type then we must implement string method
+	// if we want to spik % we can use %%
 
 }
